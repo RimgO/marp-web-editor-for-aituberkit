@@ -214,7 +214,9 @@ function App() {
         const data = await res.json();
         let imageMarkdown = '\n';
         data.files.forEach((f: any) => {
-          imageMarkdown += `![Image](${f.url})\n`;
+          // Wrap the URL in angle brackets < > to safely handle spaces, parentheses, and Japanese characters
+          // without making the markdown source ugly with URL encoding (e.g. %E3...)
+          imageMarkdown += `![Image](<${f.url}>)\n`;
         });
 
         // Split markdown by the typical Marp separator
