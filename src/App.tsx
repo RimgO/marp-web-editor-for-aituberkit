@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import CodeEditor, { type CodeEditorHandle } from './components/Editor';
 import Preview from './components/Preview';
-import MediaManager from './components/MediaManager';
 
 const initialMarkdown = `
 # Slide 1: Welcome to Marp Editor
@@ -42,7 +41,6 @@ function App() {
   const [markdown, setMarkdown] = useState(initialMarkdown);
   const [themeCss, setThemeCss] = useState('');
   const [projectPath, setProjectPath] = useState('slides/demo');
-  const [isMediaOpen, setIsMediaOpen] = useState(false);
 
   // Split-pane sizing
   const [editorWidth, setEditorWidth] = useState(40);
@@ -198,15 +196,39 @@ function App() {
     }
   };
 
-  const handleInsertImage = (url: string) => {
-    // Insert image markdown at cursor
-    if (editorRef.current && editorRef.current.insertAtCursor) {
-      editorRef.current.insertAtCursor(`\n![Image](${url})\n`);
-    } else {
-      // Fallback if ref not ready (append to end)
-      setMarkdown(prev => prev + `\n![Image](${url})\n`);
+  const handleDropOnSlide = async (index: number, files: FileList) => {
+    if (!files || files.length === 0) return;
+
+    const formData = new FormData();
+    Array.from(files).forEach(file => {
+      formData.append('files', file);
+    });
+
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        let imageMarkdown = '\n';
+        data.files.forEach((f: any) => {
+          imageMarkdown += `![Image](${f.url})\n`;
+        });
+
+        // Split markdown by the typical Marp separator
+        const parts = markdown.split(/\n---\s*\n/);
+        if (index >= 0 && index < parts.length) {
+          parts[index] += imageMarkdown;
+          setMarkdown(parts.join('\n---\n'));
+        } else {
+          setMarkdown(prev => prev + `\n---\n${imageMarkdown}`);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to upload image:', err);
     }
-    setIsMediaOpen(false);
   };
 
   return (
@@ -229,10 +251,6 @@ function App() {
               Load
             </button>
           </div>
-
-          <button className="btn" onClick={() => setIsMediaOpen(true)}>
-            🖼️ Media
-          </button>
           <button
             className="btn"
             onClick={async () => {
@@ -321,19 +339,13 @@ function App() {
               scripts={scripts}
               onUpdateScript={handleUpdateScript}
               onSelectLine={handleLineSelect}
+              onDropOnSlide={handleDropOnSlide}
             />
 
           </div>
         </div>
       </main>
 
-      {/* Media Manager Modal */}
-      {isMediaOpen && (
-        <MediaManager
-          onInsert={handleInsertImage}
-          onClose={() => setIsMediaOpen(false)}
-        />
-      )}
     </div>
   );
 }

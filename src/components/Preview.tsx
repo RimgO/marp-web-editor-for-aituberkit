@@ -7,6 +7,7 @@ interface PreviewProps {
   scripts?: Array<{ page: number, line: string, notes: string }>;
   onUpdateScript?: (index: number, field: any, value: string | number) => void;
   onSelectLine?: (line: number) => void;
+  onDropOnSlide?: (index: number, files: FileList) => void;
 }
 
 const SlideRenderer: React.FC<{ html: string; css: string; onSelectLine?: (line: number) => void }> = ({ html, css, onSelectLine }) => {
@@ -61,7 +62,7 @@ const SlideRenderer: React.FC<{ html: string; css: string; onSelectLine?: (line:
 }
 
 const Preview: React.FC<PreviewProps> = (props) => {
-  const { markdown, themeCss, scripts, onUpdateScript, onSelectLine } = props;
+  const { markdown, themeCss, scripts, onUpdateScript, onSelectLine, onDropOnSlide } = props;
 
   // Memoize Marp instance and setup source map plugin
   const marp = useMemo(() => {
@@ -127,7 +128,27 @@ const Preview: React.FC<PreviewProps> = (props) => {
 
               return (
                 <tr key={index} style={{ borderBottom: index < slidesHtml.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
-                  <td style={{ padding: '1rem', verticalAlign: 'top', borderRight: '1px solid #e2e8f0', backgroundColor: '#ffffff' }}>
+                  <td
+                    style={{ padding: '1rem', verticalAlign: 'top', borderRight: '1px solid #e2e8f0', backgroundColor: '#ffffff', outlineOffset: '-2px', transition: 'outline 0.1s' }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      e.currentTarget.style.outline = '2px dashed #38bdf8';
+                    }}
+                    onDragLeave={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      e.currentTarget.style.outline = 'none';
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      e.currentTarget.style.outline = 'none';
+                      if (onDropOnSlide && e.dataTransfer.files) {
+                        onDropOnSlide(index, e.dataTransfer.files);
+                      }
+                    }}
+                  >
                     <div style={{ width: '360px', borderRadius: '0.375rem', overflow: 'hidden', boxShadow: '0 1px 2px 0 rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
                       <SlideRenderer html={html} css={css} onSelectLine={onSelectLine} />
                     </div>
