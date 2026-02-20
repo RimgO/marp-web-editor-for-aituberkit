@@ -7,11 +7,16 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 // https://vite.dev/config/
 export default defineConfig({
+  resolve: {
+    alias: {
+      'source-map-js': 'source-map-js/lib/source-map.js',
+    }
+  },
   plugins: [
     react(),
     nodePolyfills({
-      include: ['path'],
-      globals: { process: true }
+      include: ['path', 'url', 'buffer'],
+      globals: { process: true, Buffer: true }
     }),
     {
       name: 'file-upload-server',
