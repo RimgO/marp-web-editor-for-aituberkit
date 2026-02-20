@@ -97,6 +97,16 @@ function App() {
         path = path.split('/ai-slides-scenario-editor/')[1];
       }
 
+      // If a specific file was pasted, get its parent directory
+      if (path.endsWith('.md') || path.endsWith('.json') || path.endsWith('.css')) {
+        const lastSlash = path.lastIndexOf('/');
+        if (lastSlash !== -1) {
+          path = path.substring(0, lastSlash);
+        } else {
+          path = '';
+        }
+      }
+
       // Remove leading/trailing slashes
       path = path.replace(/^\/+|\/+$/g, '');
 
@@ -183,6 +193,17 @@ function App() {
       } else if (pathStr.includes('/ai-slides-scenario-editor/')) {
         pathStr = pathStr.split('/ai-slides-scenario-editor/')[1];
       }
+
+      // If a specific file was pasted, get its parent directory
+      if (pathStr.endsWith('.md') || pathStr.endsWith('.json') || pathStr.endsWith('.css')) {
+        const lastSlash = pathStr.lastIndexOf('/');
+        if (lastSlash !== -1) {
+          pathStr = pathStr.substring(0, lastSlash);
+        } else {
+          pathStr = '';
+        }
+      }
+
       pathStr = pathStr.replace(/^\/+|\/+$/g, '');
 
       // Heuristic: if path starts with "public/", keep it. If not, prepend "public/".
