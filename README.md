@@ -10,8 +10,6 @@ paginate: true
 ブラウザ上でスムーズにMarpスライドを作成・プレビュー・出力できるエディタです。
 AITuberKit用のスライドシナリオ作成に最適化されています。
 
-![bg right:50% 90%](./public/images/screenshot.png)
-
 ---
 
 ## 🌟 主な特徴
