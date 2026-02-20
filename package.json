@@ -1,5 +1,7 @@
 {
-  "name": "ai-slides-scenario-editor",
+  "name": "web-marp-editor-for-aituberkit",
+  "author": "RimgO",
+  "license": "MIT",
   "private": true,
   "version": "0.0.0",
   "type": "module",
