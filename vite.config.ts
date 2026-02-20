@@ -4,10 +4,17 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import formidable from 'formidable';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 
 // https://vite.dev/config/
 export default defineConfig({
-
+  resolve: {
+    alias: {
+      'source-map-js': require.resolve('source-map-js/source-map.js'),
+    }
+  },
   plugins: [
     react(),
     nodePolyfills({
