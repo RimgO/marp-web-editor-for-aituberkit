@@ -241,7 +241,7 @@ function App() {
       {/* Header */}
       <header className="app-header glass-panel">
         <h1 className="app-title bg-gradient-to-r from-sky-400 to-blue-600 bg-clip-text text-transparent">
-          Marp Web Editor
+          Marp Editor for AITuberKit
         </h1>
         <div className="header-actions">
           <div className="flex items-center gap-2 mr-4">
@@ -264,17 +264,64 @@ function App() {
               if (themeCss) marp.themeSet.add(themeCss);
               const { html, css } = marp.render(markdown);
 
+              // Embed local images as base64
+              const htmlRegex = /src="(\/[^"]+)"|url\((?:&quot;|"|')?(\/[^"'\)]+)(?:&quot;|"|')?\)/g;
+              const cssRegex = /url\((?:&quot;|"|')?(\/[^"'\)]+)(?:&quot;|"|')?\)/g;
+
+              const urlsToFetch = new Set<string>();
+              for (const match of html.matchAll(htmlRegex)) {
+                if (match[1]) urlsToFetch.add(match[1]);
+                if (match[2]) urlsToFetch.add(match[2]);
+              }
+              for (const match of css.matchAll(cssRegex)) {
+                if (match[1]) urlsToFetch.add(match[1]);
+              }
+
+              const urlMap = new Map<string, string>();
+              for (const url of Array.from(urlsToFetch)) {
+                try {
+                  const res = await fetch(url.replace(/&amp;/g, '&'));
+                  if (res.ok) {
+                    const blob = await res.blob();
+                    const dataUrl = await new Promise<string>((resolve) => {
+                      const reader = new FileReader();
+                      reader.onloadend = () => resolve(reader.result as string);
+                      reader.readAsDataURL(blob);
+                    });
+                    urlMap.set(url, dataUrl);
+                  }
+                } catch (e) {
+                  console.error('Failed to fetch image for export:', url, e);
+                }
+              }
+
+              const finalHtml = html.replace(htmlRegex, (fullMatch, url1, url2) => {
+                const targetUrl = url1 || url2;
+                if (targetUrl && urlMap.has(targetUrl)) {
+                  if (url1) return `src="${urlMap.get(targetUrl)}"`;
+                  if (url2) return `url(&quot;${urlMap.get(targetUrl)}&quot;)`;
+                }
+                return fullMatch;
+              });
+
+              const finalCss = css.replace(cssRegex, (fullMatch, url1) => {
+                if (url1 && urlMap.has(url1)) {
+                  return `url("${urlMap.get(url1)}")`;
+                }
+                return fullMatch;
+              });
+
               const blob = new Blob([`
 <!DOCTYPE html>
 <html>
 <head>
 <title>Marp Presentation</title>
 <style>
-  ${css}
+  ${finalCss}
 </style>
 </head>
 <body>
-  ${html}
+  ${finalHtml}
 </body>
 </html>
                `.trim()], { type: 'text/html' });
