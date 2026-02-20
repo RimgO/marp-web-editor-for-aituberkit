@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useImperativeHandle, useRef } from 'react';
 import Editor from 'react-simple-code-editor';
 import * as Prism from 'prismjs';
 import 'prismjs/components/prism-markdown';
@@ -46,8 +46,6 @@ const CodeEditor = forwardRef<CodeEditorHandle, EditorProps>(({ value, onChange 
 
             // Calculate scroll position (approximate based on line height)
             // Standard line height is usually around 1.5em or 21px for 14px font
-            const lineHeight = 21; // approximate for 14px * 1.5
-
             // Scroll the container or textarea
             // textarea.scrollTop = scrollTop; // if textarea scrolls
             // But container overflows?
