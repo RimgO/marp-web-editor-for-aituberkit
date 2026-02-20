@@ -1,13 +1,18 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import fs from 'node:fs/promises'
-import path from 'node:path'
-import formidable from 'formidable'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import formidable from 'formidable';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
+    nodePolyfills({
+      include: ['path'],
+      globals: { process: true }
+    }),
     {
       name: 'file-upload-server',
       configureServer(server) {
