@@ -25,9 +25,13 @@ AITuberKit用のスライドシナリオ作成に最適化されています。
 
 ## 🚀 機能プレビュー
 
-![w:800](./public/images/screenshot.png)
+**📝 Scripts JSON モード & Notes 展開時**
+![Script Editor](./public/images/screenshot-notes-open.png)
 
-*画面の左側がMarkdownエディタ、右側がリアルタイムなプレビューとなっています。*
+**👀 Notes 折りたたみ時**
+![Script Editor Closed Notes](./public/images/screenshot-notes-closed.png)
+
+*画面の左側がMarkdown / Scripts JSONエディタ、右側がリアルタイムなプレビュー兼Script/Note確認画面となっています。無駄な列を折りたたむことでプレビュー幅を広げることができます。*
 
 ---
 
