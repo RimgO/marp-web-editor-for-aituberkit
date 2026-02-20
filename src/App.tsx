@@ -87,21 +87,33 @@ function App() {
 
   const loadProject = async () => {
     try {
-      // Normalize path (remove leading/trailing slashes and public prefix)
-      let path = projectPath.replace(/^\/+|\/+$/g, '');
+      // Robust path normalization: handle absolute paths from local filesystem
+      let path = projectPath;
+
+      // If absolute path from Mac is pasted, strip the root repo part
+      if (path.includes('/ai-slides-scenario-editor/public/')) {
+        path = path.split('/ai-slides-scenario-editor/public/')[1];
+      } else if (path.includes('/ai-slides-scenario-editor/')) {
+        path = path.split('/ai-slides-scenario-editor/')[1];
+      }
+
+      // Remove leading/trailing slashes
+      path = path.replace(/^\/+|\/+$/g, '');
+
+      // Remove 'public/' prefix if present
       if (path.startsWith('public/')) {
         path = path.substring(7);
       }
 
       // Load slides.md
-      const slidesRes = await fetch(`/${path}/slides.md`);
+      const slidesRes = await fetch(`/${path}/slides.md?t=${Date.now()}`);
       if (!slidesRes.ok) throw new Error('Failed to load slides.md');
       const slidesText = await slidesRes.text();
       setMarkdown(slidesText);
 
       // Try to load theme.css (optional)
       try {
-        const themeRes = await fetch(`/${path}/theme.css`);
+        const themeRes = await fetch(`/${path}/theme.css?t=${Date.now()}`);
         if (themeRes.ok) {
           const themeText = await themeRes.text();
           setThemeCss(themeText);
@@ -115,7 +127,7 @@ function App() {
 
       // Load scripts.json
       try {
-        const scriptsRes = await fetch(`/${path}/scripts.json`);
+        const scriptsRes = await fetch(`/${path}/scripts.json?t=${Date.now()}`);
         if (scriptsRes.ok) {
           const scriptsJson = await scriptsRes.json();
           // Ensure it's an array
@@ -165,10 +177,13 @@ function App() {
     // Save to server
     try {
       // Reconstruct full path for saving
-      let pathStr = projectPath.replace(/^\/+|\/+$/g, '');
-      // If user typed "slides/demo", we assume it's under public if accessible via /slides/demo
-      // But the save API needs a file path relative to project root.
-      // If the file is literally in /Users/.../public/slides/demo, we should pass "public/slides/demo/scripts.json"
+      let pathStr = projectPath;
+      if (pathStr.includes('/ai-slides-scenario-editor/public/')) {
+        pathStr = pathStr.split('/ai-slides-scenario-editor/public/')[1];
+      } else if (pathStr.includes('/ai-slides-scenario-editor/')) {
+        pathStr = pathStr.split('/ai-slides-scenario-editor/')[1];
+      }
+      pathStr = pathStr.replace(/^\/+|\/+$/g, '');
 
       // Heuristic: if path starts with "public/", keep it. If not, prepend "public/".
       // Since `fetch('/slides/demo/...')` works, it means "slides/demo" is inside "public".

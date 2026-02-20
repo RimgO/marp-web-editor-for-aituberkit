@@ -128,7 +128,7 @@ const Preview: React.FC<PreviewProps> = (props) => {
                   title="Toggle Script column"
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    {showScript ? <span>Script (Speech Line)</span> : <span title="Script (Speech Line)">🗣️</span>}
+                    {showScript ? <span>Script (Speech Line) ({scripts ? scripts.length : 0})</span> : <span title="Script (Speech Line)">🗣️</span>}
                     <span style={{ color: '#94a3b8', marginLeft: '0.5rem' }}>{showScript ? '▼' : '▶'}</span>
                   </div>
                 </th>
