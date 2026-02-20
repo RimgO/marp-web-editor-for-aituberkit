@@ -120,10 +120,10 @@ const Preview: React.FC<PreviewProps> = (props) => {
         <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
           <thead style={{ backgroundColor: '#f8fafc' }}>
             <tr>
-              <th style={{ padding: '1rem', fontSize: '0.875rem', fontWeight: 600, color: '#334155', width: '380px', borderBottom: '1px solid #e2e8f0', borderRight: '1px solid #e2e8f0' }}>Slide</th>
+              <th style={{ padding: '1rem', fontSize: '0.875rem', fontWeight: 600, color: '#334155', width: (showScript && showNotes) ? '380px' : 'auto', transition: 'width 0.2s', borderBottom: '1px solid #e2e8f0', borderRight: '1px solid #e2e8f0' }}>Slide</th>
               {scripts && (
                 <th
-                  style={{ padding: '1rem', fontSize: '0.875rem', fontWeight: 600, color: '#334155', borderBottom: '1px solid #e2e8f0', borderRight: '1px solid #e2e8f0', width: showScript ? 'auto' : '60px', cursor: 'pointer', transition: 'width 0.2s' }}
+                  style={{ padding: '1rem', fontSize: '0.875rem', fontWeight: 600, color: '#334155', borderBottom: '1px solid #e2e8f0', borderRight: '1px solid #e2e8f0', width: showScript ? '35%' : '60px', cursor: 'pointer', transition: 'width 0.2s' }}
                   onClick={() => setShowScript(!showScript)}
                   title="Toggle Script column"
                 >
@@ -135,7 +135,7 @@ const Preview: React.FC<PreviewProps> = (props) => {
               )}
               {scripts && (
                 <th
-                  style={{ padding: '1rem', fontSize: '0.875rem', fontWeight: 600, color: '#334155', borderBottom: '1px solid #e2e8f0', width: showNotes ? 'auto' : '60px', cursor: 'pointer', transition: 'width 0.2s' }}
+                  style={{ padding: '1rem', fontSize: '0.875rem', fontWeight: 600, color: '#334155', borderBottom: '1px solid #e2e8f0', width: showNotes ? '35%' : '60px', cursor: 'pointer', transition: 'width 0.2s' }}
                   onClick={() => setShowNotes(!showNotes)}
                   title="Toggle Notes column"
                 >
@@ -174,7 +174,7 @@ const Preview: React.FC<PreviewProps> = (props) => {
                       }
                     }}
                   >
-                    <div style={{ width: '360px', borderRadius: '0.375rem', overflow: 'hidden', boxShadow: '0 1px 2px 0 rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
+                    <div style={{ width: (showScript && showNotes) ? '360px' : '100%', minWidth: '360px', transition: 'width 0.2s', borderRadius: '0.375rem', overflow: 'hidden', boxShadow: '0 1px 2px 0 rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
                       <SlideRenderer html={html} css={css} onSelectLine={onSelectLine} />
                     </div>
                   </td>
