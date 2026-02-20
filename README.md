@@ -1,73 +1,67 @@
-# React + TypeScript + Vite
+---
+marp: true
+theme: default
+paginate: true
+---
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<!-- _class: lead -->
+# Web Marp Editor for AITuberKit
 
-Currently, two official plugins are available:
+ブラウザ上でスムーズにMarpスライドを作成・プレビュー・出力できるエディタです。
+AITuberKit用のスライドシナリオ作成に最適化されています。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+![bg right:50% 90%](./public/images/screenshot.png)
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🌟 主な特徴
 
-## Expanding the ESLint configuration
+- **リアルタイムプレビュー:** Markdownの変更が即座にスライドデザインに反映されます。
+- **ドラッグ＆ドロップ画像対応:** プレビュー画面のSlide上で画像を直接D&D。プロジェクト固有ディレクトリに自動配置され、Markdownに追記されます。
+- **表示幅の自動最適化:** ScriptやNotes列を折りたたむことで、プレビュー画面（Slide）を自動的に拡大し、画面を最大限広く使えます。
+- **完璧なHTMLエクスポート:** 挿入されたローカル画像もすべてBase64で直接埋め込み、他環境に持ち出しても画像が消えない完全ポータブルなHTMLファイルとして出力が可能です。
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🚀 機能プレビュー
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+![w:800](./public/images/screenshot.png)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+*画面の左側がMarkdownエディタ、右側がリアルタイムなプレビューとなっています。*
+
+---
+
+## 🛠️ インストール＆起動方法
+
+```bash
+# パッケージのインストール
+pnpm install
+
+# 開発サーバーの起動
+pnpm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+起動後、ローカルサーバー（\`http://localhost:5173\` 等）にアクセスしてご利用ください。
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 📝 使い方・操作ガイド
+
+1. **プロジェクトロード:** 右上の入力欄にプロジェクトパス（例: \`slides/demo\`）を入れて「Load」を押します。
+2. **スライド編集:** 左パネルのMarkdownを編集するとリアルタイムに右パネルに反映されます。
+3. **画像挿入:** ローカルの画像を右パネルの **Slide領域** に直接ドラッグ＆ドロップすると、該当スライドのMarkdown内に画像が自動挿入されます。
+4. **表示切り替え:** 各列のヘッダー「Script」「Notes」をクリックで、見ない列を折りたたんでプレビューを広くできます。
+5. **出力:** 「Export HTML」クリックでそのまま配布可能なHTMLスライドを取得できます。
+
+---
+
+# 📚 技術スタック & ライセンス
+
+### 使用技術
+- React
+- Vite
+- TypeScript
+- @marp-team/marp-core
+
+### ライセンス
+MIT License
