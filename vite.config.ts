@@ -44,38 +44,56 @@ export default defineConfig({
         });
 
         // Upload endpoint
-        server.middlewares.use('/api/upload', (req, res, next) => {
+        server.middlewares.use('/api/upload', async (req, res, next) => {
           if (req.method === 'POST') {
-            const uploadDir = path.resolve(__dirname, 'public/images');
-
-            const form = formidable({
-              uploadDir,
-              keepExtensions: true,
-              filename: (_name, ext, part, _form) => {
-                // Use original filename, handle duplicates if needed (not implemented here for simplicity)
-                return part.originalFilename || `image_${Date.now()}${ext}`;
+            try {
+              const projectPathRaw = (req.headers['x-project-path'] as string) || '';
+              let projectPath = projectPathRaw.replace(/^\/+|\/+$/g, '');
+              if (!projectPath) {
+                projectPath = 'public';
+              } else if (!projectPath.startsWith('public/')) {
+                projectPath = 'public/' + projectPath;
               }
-            });
+              const uploadDir = path.resolve(__dirname, projectPath, 'images');
 
-            form.parse(req, (err, _fields, files) => {
-              if (err) {
-                console.error('Upload error:', err);
-                res.statusCode = 500;
-                res.end(JSON.stringify({ error: 'Upload failed' }));
-                return;
-              }
+              await fs.mkdir(uploadDir, { recursive: true });
 
-              // Helper to flatten files array from formidable and filter undefined
-              const fileList = Object.values(files).flat().filter(f => f !== undefined);
-              const result = fileList.map(f => ({
-                originalFilename: f?.originalFilename,
-                newFilename: f?.newFilename,
-                url: `/images/${f?.newFilename}`
-              }));
+              const form = formidable({
+                uploadDir,
+                keepExtensions: true,
+                filename: (_name, ext, part, _form) => {
+                  // Use original filename, handle duplicates if needed (not implemented here for simplicity)
+                  return part.originalFilename || `image_${Date.now()}${ext}`;
+                }
+              });
 
-              res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify({ files: result }));
-            });
+              form.parse(req, (err, _fields, files) => {
+                if (err) {
+                  console.error('Upload error:', err);
+                  res.statusCode = 500;
+                  res.end(JSON.stringify({ error: 'Upload failed' }));
+                  return;
+                }
+
+                const publicPath = projectPath.startsWith('public/') ? projectPath.substring(7) : projectPath;
+                const baseUrl = publicPath ? `/${publicPath}/images` : '/images';
+
+                // Helper to flatten files array from formidable and filter undefined
+                const fileList = Object.values(files).flat().filter(f => f !== undefined);
+                const result = fileList.map(f => ({
+                  originalFilename: f?.originalFilename,
+                  newFilename: f?.newFilename,
+                  url: `${baseUrl}/${f?.newFilename}`
+                }));
+
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ files: result }));
+              });
+            } catch (err) {
+              console.error('Upload directory creation error:', err);
+              res.statusCode = 500;
+              res.end(JSON.stringify({ error: 'Failed to initialize upload directory' }));
+            }
           } else {
             next();
           }

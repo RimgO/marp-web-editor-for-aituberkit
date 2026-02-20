@@ -207,6 +207,9 @@ function App() {
     try {
       const res = await fetch('/api/upload', {
         method: 'POST',
+        headers: {
+          'X-Project-Path': projectPath
+        },
         body: formData,
       });
 
