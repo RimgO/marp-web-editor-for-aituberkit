@@ -37,6 +37,51 @@ console.log(greeting);
 > "Simplicity is the ultimate sophistication." - Leonardo da Vinci
 `.trim();
 
+const JsonEditorTextArea = ({ scripts, onChange, onSave }: { scripts: any[], onChange: (parsed: any[]) => void, onSave: (parsed: any[]) => void }) => {
+  const [text, setText] = useState(() => JSON.stringify(scripts, null, 2));
+
+  useEffect(() => {
+    try {
+      if (JSON.stringify(JSON.parse(text)) !== JSON.stringify(scripts)) {
+        setText(JSON.stringify(scripts, null, 2));
+      }
+    } catch {
+      setText(JSON.stringify(scripts, null, 2));
+    }
+  }, [scripts]);
+
+  return (
+    <textarea
+      value={text}
+      onChange={(e) => {
+        const val = e.target.value;
+        setText(val);
+        try {
+          const parsed = JSON.parse(val);
+          if (Array.isArray(parsed)) {
+            onChange(parsed);
+            if (parsed.length > 0) {
+              onSave(parsed);
+            }
+          }
+        } catch (err) { }
+      }}
+      style={{
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#1e293b',
+        color: 'white',
+        fontFamily: '"Fira Code", monospace',
+        padding: '1rem',
+        border: 'none',
+        outline: 'none',
+        resize: 'none'
+      }}
+      spellCheck={false}
+    />
+  );
+};
+
 function App() {
   const [markdown, setMarkdown] = useState(initialMarkdown);
   const [themeCss, setThemeCss] = useState('');
@@ -425,35 +470,14 @@ function App() {
             {editorMode === 'markdown' ? (
               <CodeEditor ref={editorRef} value={markdown} onChange={setMarkdown} />
             ) : (
-              <textarea
-                value={JSON.stringify(scripts, null, 2)}
-                onChange={(e) => {
+              <JsonEditorTextArea
+                scripts={scripts}
+                onChange={setScripts}
+                onSave={(parsed) => {
                   try {
-                    const parsed = JSON.parse(e.target.value);
-                    if (Array.isArray(parsed)) {
-                      setScripts(parsed);
-                      // Trigger a fake property update to use the existing handleUpdateScript logic
-                      // which knows how to resolve savePath & hit our API Endpoint, ensuring it saves.
-                      if (parsed.length > 0) {
-                        handleUpdateScript(parsed[0].page, 'line', parsed[0].line);
-                      }
-                    }
-                  } catch (err) {
-                    // Ignore parse errors while typing
-                  }
+                    handleUpdateScript(parsed[0].page, 'line', parsed[0].line);
+                  } catch (e) { console.error(e) }
                 }}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  backgroundColor: '#1e293b',
-                  color: 'white',
-                  fontFamily: '"Fira Code", monospace',
-                  padding: '1rem',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none'
-                }}
-                spellCheck={false}
               />
             )}
           </div>
