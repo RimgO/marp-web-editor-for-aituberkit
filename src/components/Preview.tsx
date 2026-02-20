@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { Marp } from '@marp-team/marp-core';
 
 interface PreviewProps {
@@ -64,6 +64,9 @@ const SlideRenderer: React.FC<{ html: string; css: string; onSelectLine?: (line:
 const Preview: React.FC<PreviewProps> = (props) => {
   const { markdown, themeCss, scripts, onUpdateScript, onSelectLine, onDropOnSlide } = props;
 
+  const [showScript, setShowScript] = useState(true);
+  const [showNotes, setShowNotes] = useState(true);
+
   // Memoize Marp instance and setup source map plugin
   const marp = useMemo(() => {
     const instance = new Marp({
@@ -118,8 +121,30 @@ const Preview: React.FC<PreviewProps> = (props) => {
           <thead style={{ backgroundColor: '#f8fafc' }}>
             <tr>
               <th style={{ padding: '1rem', fontSize: '0.875rem', fontWeight: 600, color: '#334155', width: '380px', borderBottom: '1px solid #e2e8f0', borderRight: '1px solid #e2e8f0' }}>Slide</th>
-              {scripts && <th style={{ padding: '1rem', fontSize: '0.875rem', fontWeight: 600, color: '#334155', borderBottom: '1px solid #e2e8f0', borderRight: '1px solid #e2e8f0' }}>Script (Speech Line)</th>}
-              {scripts && <th style={{ padding: '1rem', fontSize: '0.875rem', fontWeight: 600, color: '#334155', borderBottom: '1px solid #e2e8f0' }}>Notes</th>}
+              {scripts && (
+                <th
+                  style={{ padding: '1rem', fontSize: '0.875rem', fontWeight: 600, color: '#334155', borderBottom: '1px solid #e2e8f0', borderRight: '1px solid #e2e8f0', width: showScript ? 'auto' : '60px', cursor: 'pointer', transition: 'width 0.2s' }}
+                  onClick={() => setShowScript(!showScript)}
+                  title="Toggle Script column"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    {showScript ? <span>Script (Speech Line)</span> : <span title="Script (Speech Line)">🗣️</span>}
+                    <span style={{ color: '#94a3b8', marginLeft: '0.5rem' }}>{showScript ? '▼' : '▶'}</span>
+                  </div>
+                </th>
+              )}
+              {scripts && (
+                <th
+                  style={{ padding: '1rem', fontSize: '0.875rem', fontWeight: 600, color: '#334155', borderBottom: '1px solid #e2e8f0', width: showNotes ? 'auto' : '60px', cursor: 'pointer', transition: 'width 0.2s' }}
+                  onClick={() => setShowNotes(!showNotes)}
+                  title="Toggle Notes column"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    {showNotes ? <span>Notes</span> : <span title="Notes">📓</span>}
+                    <span style={{ color: '#94a3b8', marginLeft: '0.5rem' }}>{showNotes ? '▼' : '▶'}</span>
+                  </div>
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -154,27 +179,31 @@ const Preview: React.FC<PreviewProps> = (props) => {
                     </div>
                   </td>
                   {scripts && (
-                    <td style={{ padding: 0, verticalAlign: 'top', borderRight: '1px solid #e2e8f0', position: 'relative' }}>
-                      <textarea
-                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', fontSize: '0.875rem', padding: '1rem', color: '#1e293b', outline: 'none', resize: 'none', background: 'transparent', border: 'none', boxSizing: 'border-box' }}
-                        value={scriptItem.line}
-                        onChange={(e) => onUpdateScript && onUpdateScript(index, 'line', e.target.value)}
-                        placeholder="Enter speech here..."
-                        onFocus={(e) => e.target.style.backgroundColor = '#f8fafc'}
-                        onBlur={(e) => e.target.style.backgroundColor = 'transparent'}
-                      />
+                    <td style={{ padding: showScript ? 0 : '1rem', verticalAlign: 'top', borderRight: '1px solid #e2e8f0', position: 'relative', backgroundColor: showScript ? 'transparent' : '#f8fafc', transition: 'background-color 0.2s' }}>
+                      {showScript && (
+                        <textarea
+                          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', fontSize: '0.875rem', padding: '1rem', color: '#1e293b', outline: 'none', resize: 'none', background: 'transparent', border: 'none', boxSizing: 'border-box' }}
+                          value={scriptItem.line}
+                          onChange={(e) => onUpdateScript && onUpdateScript(index, 'line', e.target.value)}
+                          placeholder="Enter speech here..."
+                          onFocus={(e) => e.target.style.backgroundColor = '#f8fafc'}
+                          onBlur={(e) => e.target.style.backgroundColor = 'transparent'}
+                        />
+                      )}
                     </td>
                   )}
                   {scripts && (
-                    <td style={{ padding: 0, verticalAlign: 'top', position: 'relative' }}>
-                      <textarea
-                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', fontSize: '0.875rem', padding: '1rem', color: '#475569', outline: 'none', resize: 'none', background: 'transparent', border: 'none', boxSizing: 'border-box' }}
-                        value={scriptItem.notes}
-                        onChange={(e) => onUpdateScript && onUpdateScript(index, 'notes', e.target.value)}
-                        placeholder="Internal notes..."
-                        onFocus={(e) => e.target.style.backgroundColor = '#f8fafc'}
-                        onBlur={(e) => e.target.style.backgroundColor = 'transparent'}
-                      />
+                    <td style={{ padding: showNotes ? 0 : '1rem', verticalAlign: 'top', position: 'relative', backgroundColor: showNotes ? 'transparent' : '#f8fafc', transition: 'background-color 0.2s' }}>
+                      {showNotes && (
+                        <textarea
+                          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', fontSize: '0.875rem', padding: '1rem', color: '#475569', outline: 'none', resize: 'none', background: 'transparent', border: 'none', boxSizing: 'border-box' }}
+                          value={scriptItem.notes}
+                          onChange={(e) => onUpdateScript && onUpdateScript(index, 'notes', e.target.value)}
+                          placeholder="Internal notes..."
+                          onFocus={(e) => e.target.style.backgroundColor = '#f8fafc'}
+                          onBlur={(e) => e.target.style.backgroundColor = 'transparent'}
+                        />
+                      )}
                     </td>
                   )}
                 </tr>
