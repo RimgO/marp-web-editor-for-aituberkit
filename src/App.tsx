@@ -210,29 +210,7 @@ function App() {
     }
   };
 
-  const handleUpdateScript = async (index: number, field: keyof ScriptItem, value: string | number) => {
-    const newScripts = [...scripts];
-
-    // Find script item by page index, or create if missing
-    let scriptIdx = newScripts.findIndex(s => s.page === index);
-    if (scriptIdx === -1) {
-      // If adding new item, we might need to fill gaps or just push
-      // But standard array behavior is fine if we just filter by page
-      newScripts.push({ page: index, line: '', notes: '' });
-      scriptIdx = newScripts.length - 1;
-    }
-
-    newScripts[scriptIdx] = {
-      ...newScripts[scriptIdx],
-      [field]: value
-    };
-
-    // Sort by page to be safe
-    newScripts.sort((a, b) => a.page - b.page);
-
-    setScripts(newScripts);
-
-    // Save to server
+  const saveScriptsToFile = async (scriptsToSave: ScriptItem[]) => {
     try {
       // Reconstruct full path for saving
       let pathStr = projectPath;
@@ -254,8 +232,6 @@ function App() {
 
       pathStr = pathStr.replace(/^\/+|\/+$/g, '');
 
-      // Heuristic: if path starts with "public/", keep it. If not, prepend "public/".
-      // Since `fetch('/slides/demo/...')` works, it means "slides/demo" is inside "public".
       let savePath = pathStr;
       if (!savePath.startsWith('public/')) {
         savePath = 'public/' + savePath;
@@ -266,12 +242,32 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           path: `${savePath}/scripts.json`,
-          content: JSON.stringify(newScripts, null, 2)
+          content: JSON.stringify(scriptsToSave, null, 2)
         })
       });
     } catch (e) {
       console.error('Failed to save scripts:', e);
     }
+  };
+
+  const handleUpdateScript = async (index: number, field: keyof ScriptItem, value: string | number) => {
+    const newScripts = [...scripts];
+
+    // Find script item by page index, or create if missing
+    let scriptIdx = newScripts.findIndex(s => s.page === index);
+    if (scriptIdx === -1) {
+      newScripts.push({ page: index, line: '', notes: '' });
+      scriptIdx = newScripts.length - 1;
+    }
+
+    newScripts[scriptIdx] = {
+      ...newScripts[scriptIdx],
+      [field]: value
+    };
+
+    newScripts.sort((a, b) => a.page - b.page);
+    setScripts(newScripts);
+    await saveScriptsToFile(newScripts);
   };
 
   const handleLineSelect = (line: number) => {
@@ -475,7 +471,7 @@ function App() {
                 onChange={setScripts}
                 onSave={(parsed) => {
                   try {
-                    handleUpdateScript(parsed[0].page, 'line', parsed[0].line);
+                    saveScriptsToFile(parsed);
                   } catch (e) { console.error(e) }
                 }}
               />
