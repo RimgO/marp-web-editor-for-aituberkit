@@ -432,8 +432,11 @@ function App() {
                     const parsed = JSON.parse(e.target.value);
                     if (Array.isArray(parsed)) {
                       setScripts(parsed);
-                      // Auto-save logic here if possible, but typing JSON can be invalid midway.
-                      // Debounce would be better, but we leave it to manual save or focus out for now.
+                      // Trigger a fake property update to use the existing handleUpdateScript logic
+                      // which knows how to resolve savePath & hit our API Endpoint, ensuring it saves.
+                      if (parsed.length > 0) {
+                        handleUpdateScript(parsed[0].page, 'line', parsed[0].line);
+                      }
                     }
                   } catch (err) {
                     // Ignore parse errors while typing
