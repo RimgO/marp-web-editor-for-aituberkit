@@ -46,6 +46,9 @@ function App() {
   const [editorWidth, setEditorWidth] = useState(40);
   const [isDragging, setIsDragging] = useState(false);
 
+  // Editor mode
+  const [editorMode, setEditorMode] = useState<'markdown' | 'scripts'>('markdown');
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging) return;
@@ -385,12 +388,71 @@ function App() {
       <main className="main-content" style={{ gap: 0, cursor: isDragging ? 'col-resize' : 'default', userSelect: isDragging ? 'none' : 'auto' }}>
         {/* Editor Pane */}
         <div className="pane editor-pane glass-panel" style={{ flex: `0 0 ${editorWidth}%` }}>
-          <div className="pane-header">
-            <span>MARKDOWN</span>
-            <span>{markdown.length} chars</span>
+          <div className="pane-header" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                style={{
+                  background: editorMode === 'markdown' ? 'rgba(56, 189, 248, 0.2)' : 'transparent',
+                  color: editorMode === 'markdown' ? '#38bdf8' : '#94a3b8',
+                  border: '1px solid rgba(56, 189, 248, 0.3)',
+                  padding: '2px 8px',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '12px'
+                }}
+                onClick={() => setEditorMode('markdown')}
+              >
+                Markdown
+              </button>
+              <button
+                style={{
+                  background: editorMode === 'scripts' ? 'rgba(56, 189, 248, 0.2)' : 'transparent',
+                  color: editorMode === 'scripts' ? '#38bdf8' : '#94a3b8',
+                  border: '1px solid rgba(56, 189, 248, 0.3)',
+                  padding: '2px 8px',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '12px'
+                }}
+                onClick={() => setEditorMode('scripts')}
+              >
+                Scripts JSON
+              </button>
+            </div>
+            {editorMode === 'markdown' && <span>{markdown.length} chars</span>}
           </div>
           <div className="pane-content editor-wrapper">
-            <CodeEditor ref={editorRef} value={markdown} onChange={setMarkdown} />
+            {editorMode === 'markdown' ? (
+              <CodeEditor ref={editorRef} value={markdown} onChange={setMarkdown} />
+            ) : (
+              <textarea
+                value={JSON.stringify(scripts, null, 2)}
+                onChange={(e) => {
+                  try {
+                    const parsed = JSON.parse(e.target.value);
+                    if (Array.isArray(parsed)) {
+                      setScripts(parsed);
+                      // Auto-save logic here if possible, but typing JSON can be invalid midway.
+                      // Debounce would be better, but we leave it to manual save or focus out for now.
+                    }
+                  } catch (err) {
+                    // Ignore parse errors while typing
+                  }
+                }}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  backgroundColor: '#1e293b',
+                  color: 'white',
+                  fontFamily: '"Fira Code", monospace',
+                  padding: '1rem',
+                  border: 'none',
+                  outline: 'none',
+                  resize: 'none'
+                }}
+                spellCheck={false}
+              />
+            )}
           </div>
         </div>
 

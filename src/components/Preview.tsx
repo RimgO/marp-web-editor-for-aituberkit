@@ -108,9 +108,9 @@ const Preview: React.FC<PreviewProps> = (props) => {
         slidesHtml: sections.map(s => s.outerHTML),
         css
       };
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      return { slidesHtml: [], css: '' };
+      return { slidesHtml: [`<div style="color:red; font-size: 20px; padding: 2rem;">Marp Error: ${e.message || String(e)}</div>`], css: '' };
     }
   }, [marp, markdown]);
 
