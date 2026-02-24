@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<body>
+<div id="out">Loading...</div>
+<script type="module">
+  import { Marp } from '@marp-team/marp-core';
+  try {
+    const marp = new Marp({ html: true });
+    const { html } = marp.render('# Hello World');
+    document.getElementById('out').innerHTML = html;
+  } catch(e) {
+    document.getElementById('out').innerHTML = e.stack || String(e);
+  }
+</script>
+</body>
+</html>

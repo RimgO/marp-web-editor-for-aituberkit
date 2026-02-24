@@ -9,7 +9,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "import-pptx": "node scripts/import-pptx.mjs"
   },
   "dependencies": {
     "@marp-team/marp-core": "^4.2.0",
@@ -34,11 +35,13 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "formidable": "^3.5.4",
     "globals": "^16.5.0",
+    "jszip": "^3.10.1",
     "playwright": "^1.58.2",
     "source-map-js": "^1.2.1",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.48.0",
     "vite": "^7.3.1",
-    "vite-plugin-node-polyfills": "^0.25.0"
+    "vite-plugin-node-polyfills": "^0.25.0",
+    "xml2js": "^0.6.2"
   }
 }

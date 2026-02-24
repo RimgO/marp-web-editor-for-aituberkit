@@ -103,9 +103,14 @@ const Preview: React.FC<PreviewProps> = (props) => {
       const { html, css } = marp.render(markdown);
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
-      const sections = Array.from(doc.querySelectorAll('section'));
+
+      // Correctly identify slides: top-level children of .marpit container
+      // If advanced background is used, it's <svg>. Otherwise, it's <section>.
+      const container = doc.querySelector('.marpit');
+      const slides = container ? Array.from(container.children) : Array.from(doc.querySelectorAll('section'));
+
       return {
-        slidesHtml: sections.map(s => s.outerHTML),
+        slidesHtml: slides.map(s => s.outerHTML),
         css
       };
     } catch (e: any) {
